@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoConnect from "@/config/mongoConnect";
 import userModel from "@/models/user";
-import registerValidator from "@/app/lib/validator";
+import registerValidator from "@/lib/validator";
+import * as bcrypt from "bcrypt";
 
 export async function POST(req) {
   try {
@@ -14,12 +15,18 @@ export async function POST(req) {
       });
     const { email, password } = reqData;
     await mongoConnect();
-    await userModel.create({ email, password });
-    return NextResponse.json({ data: "DATA CREATED SUCCESSFULLY" });
+    const user = await userModel.findOne({ email });
+    if (user)
+      return NextResponse.json(
+        { message: "Email Already Taken" },
+        { status: 401 }
+      );
+    const saltRounds = await bcrypt.genSalt();
+    const pass = await bcrypt.hash(password, saltRounds);
+    await userModel.create({ email, password: pass });
+    return NextResponse.json({ message: "DATA CREATED SUCCESSFULLY" });
   } catch (error) {
     console.log(error);
-    return new Response("An error occured", {
-      status: 500,
-    });
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

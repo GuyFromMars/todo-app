@@ -41,12 +41,12 @@ export default function signup() {
     try {
       setRequestState("Loading");
       const res = await axios.post("/api/users/register", data);
-      console.log(res.data);
+      //console.log(res.data);
       setRequestState(res.data);
       reset();
       router.push("/");
     } catch (error) {
-      setRequestState({ error: "An error occured" });
+      setRequestState({ error: error.response.data.message });
     }
   };
   return (
@@ -56,11 +56,7 @@ export default function signup() {
           href="#"
           className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
         >
-          <img
-            className="w-8 h-8 mr-2"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-            alt="logo"
-          />
+          <img className="w-8 h-8 mr-2" src="#" alt="logo" />
           Flowbite
         </a>
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
@@ -73,6 +69,11 @@ export default function signup() {
               onSubmit={handleSubmit(onSubmit)}
               action="#"
             >
+              {requestState?.error ? (
+                <p className="w-full text-center text-red-500">
+                  {requestState.error}
+                </p>
+              ) : null}
               <div>
                 <label
                   htmlFor="email"
@@ -139,7 +140,7 @@ export default function signup() {
                   ? "Submitting data"
                   : "Create an account"}
               </button>
-              {requestState?.error ? <p>An error occured</p> : null}
+
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link

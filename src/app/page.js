@@ -32,7 +32,7 @@ export default function Home() {
     try {
       setRequestState("Loading");
       const res = await axios.post("/api/users/login", data);
-      console.log(res.data);
+      //console.log(res.data);
       setRequestState(res.data);
       reset();
       router.push("/todo");
@@ -59,6 +59,11 @@ export default function Home() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Sign in to your account
             </h1>
+            {requestState?.error ? (
+              <p className="text-center" style={{ color: "red" }}>
+                Email or password incorrect
+              </p>
+            ) : null}
             <form
               className="space-y-4 md:space-y-6"
               action="#"
@@ -133,7 +138,6 @@ export default function Home() {
               >
                 {requestState === "Loading" ? "Please wait..." : "Sign in"}
               </button>
-              {requestState?.error ? <p>An error occured</p> : null}
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Don’t have an account yet?{" "}
                 <Link

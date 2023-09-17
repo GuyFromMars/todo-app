@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoConnect from "@/config/mongoConnect";
 import userModel from "@/models/user";
+import * as bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {
@@ -9,19 +11,34 @@ export async function POST(req) {
     const { email, password } = reqData;
     await mongoConnect();
     const user = await userModel.findOne({ email });
-    console.log(user);
-    if (!(user && password !== user.password))
-      new Response("email or password is incorrect", {
-        status: 500,
+    if (!(user && bcrypt.compareSync(password, user.password))) {
+      return NextResponse.json(
+        { error: "Invalid Credentials" },
+        {
+          status: 401,
+        }
+      );
+    } else {
+      const tokenData = {
+        id: user._id,
+        email: user.email,
+      };
+      const token = await jwt.sign(tokenData, process.env.JWT_SECRET, {
+        expiresIn: "1d",
       });
-
-    return new Response("authenticated", {
-      status: 200,
-    });
+      const response = NextResponse.json({
+        message: "Login Successful",
+        success: true,
+      });
+      response.cookies.set("token", token, { httpOnly: true });
+      return response;
+    }
   } catch (error) {
-    console.log(error);
-    return new Response("An error occured", {
-      status: 500,
-    });
+    return NextResponse.json(
+      { error: error.message },
+      {
+        status: 500,
+      }
+    );
   }
 }

@@ -1,10 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { SchemaTypes } from "mongoose";
 
 const schema = new mongoose.Schema(
   {
-    email: { type: String, unique: true, required: true },
+    email: {
+      type: String,
+      unique: [true, "Email already exists"],
+      required: true,
+    },
     password: { type: String, required: true },
-    todos: { type: Array },
+    todos: [
+      {
+        taskId: { type: SchemaTypes.ObjectId },
+        task: String,
+        completed: { type: Boolean, default: false },
+      },
+    ],
   },
   {
     // add createdAt and updatedAt timestamps

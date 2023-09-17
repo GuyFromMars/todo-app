@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+require("dotenv").config();
 
 export default async function mongoConnect() {
+  const uri = process.env.MONGO_URI;
   mongoose.connection.on("connect", (err) => {
     console.log("Connected");
   });
@@ -9,7 +11,7 @@ export default async function mongoConnect() {
   });
 
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/todoApp");
+    await mongoose.connect(uri);
   } catch (error) {
     // console.log(error.message);
   }
